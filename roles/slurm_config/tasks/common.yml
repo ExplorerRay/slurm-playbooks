@@ -1,0 +1,10 @@
+---
+- name: copy slurm conf
+  copy:
+    # you need to create own slurm.conf locally first
+    src: slurm.conf
+    dest: /etc/slurm/slurm.conf
+    owner: slurm
+    group: slurm
+    mode: '0644'
+  

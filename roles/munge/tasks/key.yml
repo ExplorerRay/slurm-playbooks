@@ -1,0 +1,22 @@
+---
+- name: create munge key
+  become: yes
+  become_user: munge
+  shell: /usr/sbin/mungekey --verbose
+  when: ansible_hostname == "{{ munge_master }}"
+- name: copy munge key to local
+  copy:
+    src: /etc/munge/munge.key
+    dest: /tmp/munge.key
+    owner: munge
+    group: munge
+    mode: '0600'
+  when: ansible_hostname == "{{ munge_master }}"
+- name: copy munge key to others
+  copy:
+    src: /tmp/munge.key
+    dest: /etc/munge/munge.key
+    owner: munge
+    group: munge
+    mode: '0600'
+  when: ansible_hostname != "{{ munge_master }}"

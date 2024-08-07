@@ -1,0 +1,9 @@
+---
+- name: delete vmstorage vg
+  shell: "vgremove vmstorage -y"
+- name: extend root
+  shell: "vgextend system /dev/sda4 -y"
+- name: lvresize root to 128G
+  shell: "lvresize -L 128G /dev/system/root -y"
+- name: resize2fs
+  shell: "resize2fs /dev/mapper/system-root"

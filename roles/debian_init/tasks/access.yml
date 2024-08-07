@@ -1,0 +1,23 @@
+---
+- name: no root login
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin yes'
+    replace: 'PermitRootLogin no'
+- name: reload sshd
+  service:
+    name: sshd
+    state: reloaded
+- name: ask password
+  vars_prompt:
+    name: password
+    prompt: "Enter HPC user's password"
+- name: add hpc user
+  user:
+    name: cc
+    shell: /bin/bash
+    create_home: yes
+    append: true
+    groups: sudo
+    password: "{{ password | password_hash('sha512') }}"
+    update_password: on_create

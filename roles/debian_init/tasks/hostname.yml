@@ -1,0 +1,13 @@
+---
+- name: get last digit of ip address
+  shell: "ip -o -4 a | head -n 2 | tail -n 1 | awk '{print $4}' | awk -F/ '{print $1}' | awk -F. '{print $4}' | awk '{printf "%03d", $0}'"
+  register: ip
+- name: set hostname
+  hostname:
+    name: "hpc{{ ip.stdout }}"
+- name: set hostname in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "hpc{{ '%03d' % id }} 192.168.20.{{ 'id }}"
+    insertafter: EOF
+  loop: "{{ play_hosts | map('regex_search', '\\d+$') | list }}"

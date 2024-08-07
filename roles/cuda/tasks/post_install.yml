@@ -1,0 +1,10 @@
+---
+- name: setup env variable
+  blockinfile:
+    state: present
+    insertafter: EOF
+    dest: /etc/profile.d/cuda.sh
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - CUDA"
+    block: |
+      export PATH=/usr/local/cuda-'{{ cuda_major_version }}'/bin${PATH:+:${PATH}}
+      export LD_LIBRARY_PATH=/usr/local/cuda-'{{ cuda_major_version }}'/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}

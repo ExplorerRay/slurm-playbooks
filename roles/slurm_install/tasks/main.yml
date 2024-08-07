@@ -1,0 +1,15 @@
+---
+- name: prepare for DEB for all nodes
+  ansible.builtin.include_role: common
+
+- name: install mysql for db nodes
+  ansible.builtin.include_role: db
+  when: vars['group_names'][0] == 'hpc-control'
+
+- name: install slurm for control nodes
+  ansible.builtin.include_role: control
+  when: vars['group_names'][0] == 'hpc-control'
+
+- name: install slurm for compute nodes
+  ansible.builtin.include_role: compute
+  when: vars['group_names'][0] == 'hpc-compute'

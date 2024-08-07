@@ -1,0 +1,6 @@
+---
+- name: Init Munge Requirements
+  ansible.builtin.include_tasks: init.yml
+
+- name: Generate Munge Key
+  ansible.builtin.include_tasks: key.yml

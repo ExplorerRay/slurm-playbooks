@@ -1,0 +1,14 @@
+---
+- name: get uname -r
+  shell: "uname -r"
+  register: uname
+- name: install kernel header
+  apt:
+    name: "linux-headers-{{ uname.stdout }}"
+    state: latest
+- name: disable nouveau config
+  shell: mkdir -p /etc/modprobe.d && echo "blacklist nouveau" > /etc/modprobe.d/blacklist-nouveau.conf && echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf
+- name: update initramfs
+  shell: update-initramfs -u
+- name: reboot
+  ansible.builtin.reboot:

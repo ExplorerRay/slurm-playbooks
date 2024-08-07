@@ -1,0 +1,7 @@
+---
+- name: prepare for DEB
+  apt:
+    name: "{{ item }}"
+    state: absent
+    autoremove: yes
+  with_items: "{{ ctrl_packages if is_ctrl else compute_packages }}"

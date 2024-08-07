@@ -1,0 +1,19 @@
+---
+- name: add munge user
+  shell: |
+    useradd munge
+    usermod -u 150 munge
+    groupmod -g 150 munge
+    chsh -s /usr/sbin/nologin munge
+- name: apt update
+  apt:
+    state: latest
+    name: "*"
+    update_cache: yes
+- name: apt install munge & sudo
+  apt:
+    pkg:
+      - libmunge-dev
+      - libmunge2
+      - munge
+      - sudo

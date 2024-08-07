@@ -1,0 +1,30 @@
+---
+- name: add slurm user
+  shell: |
+    useradd slurm
+    usermod -u 151 slurm
+    groupmod -g 151 slurm
+    chsh -s /usr/sbin/nologin slurm  
+- name: prepare for DEB
+  apt:
+    pkg:
+      - build-essential
+      - fakeroot
+      - devscripts
+      - equivs
+- name: download slurm
+  get_url:
+    url: https://download.schedmd.com/slurm/slurm-{{ slurm_version }}.tar.bz2
+    dest: /tmp/slurm.tar.bz2
+    mode: '0644'
+- name: extract tar
+  unarchive:
+    src: /tmp/slurm.tar.bz2
+    dest: /tmp/
+    remote_src: true
+- name: install slurm dependency & build slurm
+  shell:
+    cmd: |
+      mk-build-deps --install --tool='apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes' debian/control
+      debuild -b -uc -us
+    chdir: /tmp/slurm-{{ slurm_version }}/

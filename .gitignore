@@ -1,0 +1,4 @@
+roles/slurm_config/files/slurm.conf
+roles/slurm_install/files/*
+group_vars/
+

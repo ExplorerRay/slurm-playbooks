@@ -1,0 +1,11 @@
+---
+- name: config for all nodes
+  ansible.builtin.include_role: common
+
+- name: config slurm for control (db) nodes
+  ansible.builtin.include_role: control
+  when: vars['group_names'][0] == 'hpc-control'
+
+- name: config slurm for compute nodes
+  ansible.builtin.include_role: compute
+  when: vars['group_names'][0] == 'hpc-compute'

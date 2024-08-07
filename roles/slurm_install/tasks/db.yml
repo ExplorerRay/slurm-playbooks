@@ -1,0 +1,17 @@
+---
+- name: copy mysql deb
+  copy:
+    src: mysql-apt-config_0.8.32-1_all.deb
+    mode: '0644'
+    dest: /tmp/mysql.deb
+- name: add mysql pkg
+  apt:
+    deb=/tmp/mysql.deb
+- name: apt-get update
+  apt:
+    update_cache: yes
+- name: install mysql-server
+  apt:
+    pkg: 
+      - mysql-server
+      - libmysqlclient-dev

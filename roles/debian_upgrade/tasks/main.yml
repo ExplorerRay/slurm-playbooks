@@ -1,0 +1,26 @@
+---
+- name: get os
+  shell: cat /etc/os-release | grep VERSION_CODENAME | tr -d '"' | awk -F= '{printf $2}'
+  register: os
+- name: check os
+  fail: msg="Already upgraded"
+  when: os.stdout == "bookworm"
+- name: update repo source
+  raw: sed -i'.bak' 's/bullseye/bookworm/g' /etc/apt/sources.list
+- name: apt update -y
+  shell: apt update
+- name: upgrade
+  shell: apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" upgrade -yq --without-new-pkgs
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+- name: upgrade to 12
+  shell: apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" full-upgrade -yq
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  ignore_errors: yes
+- name: add polkitd
+  raw: adduser --system --group polkitd && adduser root polkitd
+- name: configure polkitd
+  raw: dpkg --configure polkitd
+- name: configure all
+  raw: dpkg --configure -a
