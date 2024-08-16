@@ -3,6 +3,11 @@
   ansible.builtin.include_tasks: hostname.yml
 
 - name: Set access control
+  # you need to install python-passlib local
+  vars_prompt:
+    name: password
+    prompt: "Enter HPC user's password"
+    encrypt: "sha512_crypt"
   ansible.builtin.include_tasks: access.yml
 
 - name: Set storage

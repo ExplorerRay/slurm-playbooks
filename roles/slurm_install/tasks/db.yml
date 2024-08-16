@@ -1,17 +1,32 @@
 ---
-- name: copy mysql deb
-  copy:
-    src: mysql-apt-config_0.8.32-1_all.deb
-    mode: '0644'
-    dest: /tmp/mysql.deb
-- name: add mysql pkg
-  apt:
-    deb=/tmp/mysql.deb
 - name: apt-get update
   apt:
+    name: '*'
+    state: latest
     update_cache: yes
-- name: install mysql-server
+- name: install mariadb-server and mysql_config
   apt:
     pkg: 
-      - mysql-server
-      - libmysqlclient-dev
+      - mariadb-server
+      - default-libmysqlclient-dev
+
+- name: revise mariadb-server conf for bind addr
+  replace:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp: 'bind-address.*'
+    replace: 'bind-address = 0.0.0.0'
+- name: revise mariadb-server conf for buffer
+  replace:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp: '^#innodb_buffer_pool_size.*'
+    replace: 'innodb_buffer_pool_size = 4G'
+- name: add mariadb-server conf for lock wait timeout
+  blockinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    insertafter: 'innodb_buffer_pool_size = 4G'
+    block: 'innodb_lock_wait_timeout = 900'
+
+- name: restart mariadb-server
+  service:
+    name: mariadb
+    state: restarted

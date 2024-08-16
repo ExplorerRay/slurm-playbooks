@@ -3,7 +3,7 @@
   hosts: "{{ var_host }}"
   roles:
     - role: munge
-    - role: cuda
+    - role: spack
+    - role: nfs
     - role: slurm_install
     - role: slurm_config
-    - role: mpi

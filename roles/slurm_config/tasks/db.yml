@@ -1,0 +1,11 @@
+---
+- name: set accounting for login nodes in mariadb-server
+  shell: |
+    mysql -e "CREATE USER 'slurm'@'{{ item }}' identified by '{{ slurm_db_pass }}'"
+    mysql -e "GRANT all ON slurm_acct_db.* TO 'slurm'@'{{ item }}' identified by '{{ slurm_db_pass }}' with grant option"
+  loop: "{{ groups['hpc-login'] }}"
+- name: set accounting for localhost and create db
+  shell: |
+    mysql -e "CREATE USER 'slurm'@'localhost' identified by '{{ slurm_db_pass }}'"
+    mysql -e "GRANT all ON slurm_acct_db.* TO 'slurm'@'localhost' identified by '{{ slurm_db_pass }}' with grant option"
+    mysql -e "create database slurm_acct_db"

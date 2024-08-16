@@ -4,5 +4,6 @@
     deb=/tmp/{{ item }}
   with_items:
     - slurm-smd_{{ slurm_version }}-1_amd64.deb
-    - slurm-smd-slurmd_{{ slurm_version }}-1_amd64.deb
+    - slurm-smd-slurmctld_{{ slurm_version }}-1_amd64.deb
+    - slurm-smd-slurmdbd_{{ slurm_version }}-1_amd64.deb
     - slurm-smd-client_{{ slurm_version }}-1_amd64.deb

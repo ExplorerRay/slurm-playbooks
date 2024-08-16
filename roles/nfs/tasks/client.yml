@@ -1,0 +1,30 @@
+---
+- name: Mount NFS direcoty on all compute nodes
+- name: Install NFS client package
+  apt:
+    name: nfs-common
+    state: latest
+
+- name: Mount home directory
+  command: mount {{ nfs_server }}:/home /home
+
+- name: Mount spack directory
+  shell: mount {{ nfs_server }}:/opt/spack /opt/spack
+
+- name: set /opt/spack in fstab for compute node
+  lineinfile:
+    path: /etc/fstab
+    line: "{{ nfs_server }}:/opt/spack /opt/spack nfs defaults 0 0"
+    create: yes
+
+- name: set /home in fstab for compute node
+  lineinfile:
+    path: /etc/fstab
+    line: "{{ nfs_server }}:/home /home nfs defaults 0 0"
+    create: yes
+
+- name: set env for spack (create file with content)
+  copy:
+    dest: /etc/profile.d/spack.sh
+    mode: '0644'
+    content: 'source /opt/spack/share/spack/setup-env.sh'

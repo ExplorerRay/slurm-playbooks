@@ -1,21 +1,4 @@
 ---
-- name: create necessary file for slurmdbd
-  file: 
-    path: /run/slurm/slurmdbd.pid
-    state: touch
-    owner: slurm
-    group: slurm
-- name: create necessary directory for slurmdbd
-  file:
-    path: /var/log/slurm/
-    state: directory
-    owner: slurm
-    group: slurm
-- name: restart slurmdbd (for db)
-  service:
-    name: slurmdbd
-    state: restarted
-
 - name: create necessary file for slurmctld
   file: 
     path: /var/log/slurmctld.log

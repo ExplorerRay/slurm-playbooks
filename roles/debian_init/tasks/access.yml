@@ -8,16 +8,12 @@
   service:
     name: sshd
     state: reloaded
-- name: ask password
-  vars_prompt:
-    name: password
-    prompt: "Enter HPC user's password"
-- name: add hpc user
+- name: add hpc user with sudo
   user:
-    name: cc
+    name: hpc
     shell: /bin/bash
     create_home: yes
     append: true
     groups: sudo
-    password: "{{ password | password_hash('sha512') }}"
+    password: "{{ password }}"
     update_password: on_create

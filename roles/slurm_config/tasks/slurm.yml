@@ -1,0 +1,9 @@
+---
+- name: write slurm.conf using jinja2 template
+  template:
+    src: slurm.conf.j2
+    dest: /etc/slurm/slurm.conf
+    owner: slurm
+    group: slurm
+    mode: '0644'
+  

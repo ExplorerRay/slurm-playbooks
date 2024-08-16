@@ -1,0 +1,54 @@
+ClusterName={{ slurm_cluster_name }}
+SlurmctldHost={{ groups['hpc-control'] | join(', ') }}
+#
+#MailProg=/bin/mail
+MpiDefault=pmix
+#MpiParams=ports=#-#
+ProctrackType=proctrack/cgroup
+ReturnToService=2
+SlurmctldPidFile=/var/run/slurmctld.pid
+SlurmctldPort=6817
+SlurmdPidFile=/var/run/slurmd.pid
+SlurmdPort=6818
+SlurmdSpoolDir=/var/spool/slurmd
+SlurmUser=slurm
+#SlurmdUser=root
+StateSaveLocation=/var/spool/slurmctld
+#SwitchType=
+TaskPlugin=task/affinity,task/cgroup
+#
+#
+# TIMERS
+#KillWait=30
+#MinJobAge=300
+#SlurmctldTimeout=120
+#SlurmdTimeout=300
+#
+#
+# SCHEDULING
+SchedulerType=sched/backfill
+SelectType=select/cons_tres
+#
+#
+# LOGGING AND ACCOUNTING
+AccountingStorageHost={{ groups['hpc-slurmdbd'][0] }}
+AccountingStoragePass=/var/run/munge/munge.socket.2
+{{ % if groups['hpc-slurmdbd'][1] is defined % }}
+AccountingStorageBackupHost={{ groups['hpc-slurmdbd'][1] }}
+{{ % endif % }}
+AccountingStorageType=accounting_storage/slurmdbd
+AccountingStorageUser=slurm
+AccountingStoreFlags=job_script,job_env
+AccountingStoragePort=7031
+JobAcctGatherFrequency=30
+JobAcctGatherType=jobacct_gather/linux
+#SlurmctldDebug=info
+SlurmctldLogFile=/var/log/slurmctld.log
+#SlurmdDebug=info
+SlurmdLogFile=/var/log/slurmd.log
+#
+#
+# COMPUTE NODES
+# need to check hardware of compute nodes in the future
+NodeName={{ groups['hpc-compute'] | join(',') }} CPUs=12 RealMemory=12288 Sockets=1 CoresPerSocket=6 ThreadsPerCore=2 State=UNKNOWN
+PartitionName=debug Nodes=ALL Default=YES MaxTime=INFINITE State=UP

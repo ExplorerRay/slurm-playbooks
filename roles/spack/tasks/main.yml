@@ -1,0 +1,4 @@
+---
+- name: install spack for login nodes
+  ansible.builtin.include_tasks: install.yml
+  when: vars['group_names'][0] == 'hpc-login'

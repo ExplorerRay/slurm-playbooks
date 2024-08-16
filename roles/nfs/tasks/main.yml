@@ -1,0 +1,11 @@
+---
+- name: apt update
+  ansible.builtin.include_tasks: common.yml
+
+- name: Install NFS for server and setup for /home and /opt/spack
+  ansible.builtin.include_tasks: server.yml
+  when: '"hpc_storage" in group_names'
+
+- name: Install NFS client and mount /home and /opt/spack
+  ansible.builtin.include_tasks: client.yml
+  when: '"slurm_nodes" in group_names and "hpc_storage" not in group_names'

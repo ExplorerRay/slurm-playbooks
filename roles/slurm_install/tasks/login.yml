@@ -1,0 +1,7 @@
+---
+- name: install slurm.deb for login nodes
+  apt:
+    deb=/tmp/{{ item }}
+  with_items:
+    - slurm-smd_{{ slurm_version }}-1_amd64.deb
+    - slurm-smd-client_{{ slurm_version }}-1_amd64.deb

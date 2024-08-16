@@ -1,0 +1,38 @@
+---
+- name: create necessary file for slurmdbd
+  file: 
+    path: /var/run/slurmdbd.pid
+    state: touch
+    owner: slurm
+    group: slurm
+- name: create log file for slurmdbd
+  file:
+    path: /var/log/slurmdbd.log
+    state: touch
+    owner: slurm
+    group: slurm
+
+- name: write slurmdbd.conf using jinja2 template
+  template:
+    src: slurmdbd.conf.j2
+    dest: /etc/slurm/slurmdbd.conf
+    owner: slurm
+    group: slurm
+    mode: '0600'
+- name: start slurmdbd
+  service:
+    name: slurmdbd
+    state: started
+
+- name: Install pexpect
+  apt:
+    name: python3-pexpect
+    state: latest
+# there will be prompt for y/N
+- name: make slurmctld able to reach slurmdbd
+  expect:
+    command: sacctmgr add cluster {{ group_names[-1] }}
+    responses:
+      \(N/y\).+ : "y"
+    echo: yes
+    timeout: 10

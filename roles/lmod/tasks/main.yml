@@ -1,0 +1,51 @@
+---
+- name: apt-get update
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+- name: build-dep for lmod
+  apt:
+    name: lmod
+    state: build-dep
+- name: get lua ver. for lmod
+  shell: "which lua | xargs realpath -e | xargs basename"
+  register: lua_ver
+- name: get dependency
+  apt:
+    pkg:
+      - "lib{{ lua_ver.stdout }}-dev"
+      - tcl-dev
+
+- name: download Lmod
+  get_url:
+    url: https://sourceforge.net/projects/lmod/files/Lmod-8.7.tar.bz2/download
+    dest: /tmp/lmod.tar.bz2
+    mode: '0644'
+- name: extract
+  unarchive:
+    src: /tmp/lmod.tar.bz2
+    dest: /tmp/
+    remote_src: true
+- name: create directory for lmod
+  file:
+    path: /opt/apps
+    state: directory
+- name: configure location
+  shell:
+    cmd: ./configure --prefix=/opt/apps
+    chdir: /tmp/Lmod-8.7/
+- name: make install lmod
+  make:
+    chdir: /tmp/Lmod-8.7/
+    target: install
+    # jobs: 12
+- name: create symlink for lmod env var
+  file:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    state: link
+  loop:
+    - { src: /opt/apps/lmod/lmod/init/profile, dest: /etc/profile.d/z00_lmod.sh }
+    - { src: /opt/apps/lmod/lmod/init/cshrc, dest: /etc/profile.d/z00_lmod.csh }
+    - { src: /opt/apps/lmod/lmod/init/profile.fish, dest: /etc/fish/conf.d/z00_lmod.fish }

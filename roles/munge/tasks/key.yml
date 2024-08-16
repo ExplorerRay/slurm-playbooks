@@ -3,15 +3,13 @@
   become: yes
   become_user: munge
   shell: /usr/sbin/mungekey --verbose
-  when: ansible_hostname == "{{ munge_master }}"
-- name: copy munge key to local
-  copy:
+  when: ansible_hostname == vars['munge_master']
+- name: fetch munge key to local
+  fetch:
     src: /etc/munge/munge.key
     dest: /tmp/munge.key
-    owner: munge
-    group: munge
-    mode: '0600'
-  when: ansible_hostname == "{{ munge_master }}"
+    flat: yes
+  when: ansible_hostname == vars['munge_master']
 - name: copy munge key to others
   copy:
     src: /tmp/munge.key
@@ -19,4 +17,4 @@
     owner: munge
     group: munge
     mode: '0600'
-  when: ansible_hostname != "{{ munge_master }}"
+  when: '"slurm_nodes" in group_names'

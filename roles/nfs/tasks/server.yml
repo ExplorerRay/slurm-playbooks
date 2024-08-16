@@ -1,0 +1,19 @@
+- name: Install NFS kernel package
+  apt:
+    name: nfs-kernel-server
+    state: latest
+
+- name: Setting up NFS server for /home
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    line: /home {{ nfs_subnet }}(rw,sync,no_subtree_check)
+    create: yes
+
+- name: Setting up NFS server for /opt/spack
+  lineinfile:
+    path: /etc/exports
+    line: '/opt/spack {{ nfs_subnet }}(rw,sync,no_subtree_check)'
+    create: yes
+
+- name: Reload NFS
+  command: exportfs -ra
