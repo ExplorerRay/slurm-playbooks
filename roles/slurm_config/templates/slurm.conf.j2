@@ -1,5 +1,5 @@
 ClusterName={{ slurm_cluster_name }}
-SlurmctldHost={{ groups['hpc-control'] | join(', ') }}
+SlurmctldHost={{ groups['hpc-control'] | join(',') }}
 #
 #MailProg=/bin/mail
 MpiDefault=pmix
