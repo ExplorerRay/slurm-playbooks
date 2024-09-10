@@ -1,13 +1,18 @@
 ---
+- name: get ansible facts
+  setup:
+    filter:
+      - 'ansible_memory_mb'
+      - 'ansible_processor_vcpus'
+      - 'ansible_processor_count'
+      - 'ansible_processor_cores'
+      - 'ansible_processor_threads_per_core'
+
 - name: config for all slurm nodes
   ansible.builtin.include_tasks: slurm.yml
   when: '"slurm_nodes" in group_names'
 
 - name: config slurm for db node
-  # you need to install python-passlib local
-  vars_prompt:
-    name: slurm_db_pass
-    prompt: "Enter the DB password for slurm"
   ansible.builtin.include_tasks: db.yml
   when: '"hpc_db" in group_names'
 

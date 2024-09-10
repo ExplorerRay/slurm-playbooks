@@ -2,10 +2,18 @@
 - name: apt update
   ansible.builtin.include_tasks: common.yml
 
-- name: Install NFS for server and setup for /home and /opt/spack
+- name: Install NFS for server and setup for shared directories
   ansible.builtin.include_tasks: server.yml
-  when: '"hpc_storage" in group_names'
+  when: '"hpc_storage" in group_names and nfs_admin'
 
-- name: Install NFS client and mount /home and /opt/spack
+- name: create NFS directories in NFS when not managing NFS
+  include_tasks: dir.yml
+  when: "not nfs_admin and inventory_hostname == groups['hpc_login'][0]"
+
+- name: check NFS setup done
+  pause:
+    prompt: "Please check NFS server setup and press Enter to continue"
+
+- name: Install NFS client and mount shared directories
   ansible.builtin.include_tasks: client.yml
   when: '"slurm_nodes" in group_names and "hpc_storage" not in group_names'

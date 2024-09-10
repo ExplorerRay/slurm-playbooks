@@ -12,27 +12,25 @@
     owner: slurm
     group: slurm
 
-- name: write slurmdbd.conf using jinja2 template
+- name: write slurmdbd.conf using jinja2 template to NFS
   template:
     src: slurmdbd.conf.j2
     dest: /etc/slurm/slurmdbd.conf
     owner: slurm
     group: slurm
     mode: '0600'
+  when: 'shared_config and inventory_hostname == groups["hpc_slurmdbd"][0]'
+- name: write slurmdbd.conf using jinja2 template to all slurmdbd
+  template:
+    src: slurmdbd.conf.j2
+    dest: /etc/slurm/slurmdbd.conf
+    owner: slurm
+    group: slurm
+    mode: '0600'
+  when: 'not shared_config'
+
 - name: start slurmdbd
   service:
     name: slurmdbd
-    state: started
-
-- name: Install pexpect
-  apt:
-    name: python3-pexpect
-    state: latest
-# there will be prompt for y/N
-- name: make slurmctld able to reach slurmdbd
-  expect:
-    command: sacctmgr add cluster {{ group_names[-1] }}
-    responses:
-      \(N/y\).+ : "y"
-    echo: yes
-    timeout: 10
+    enabled: true
+    state: restarted

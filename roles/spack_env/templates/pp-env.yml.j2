@@ -1,0 +1,86 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  # add package specs to the `specs` list
+  specs:
+  - llvm@11.1.0
+  - opencl-headers@2.2
+  - opencl-icd-loader
+  - llvm-openmp@12.0.1
+  - openmpi@4.1.6 schedulers=slurm
+  - gcc@12
+  - cuda@{{ cuda_version }}
+  - lmod
+  view: true
+  concretizer:
+    unify: true
+  packages:
+    python:
+      externals: []
+    autoconf:
+      externals: []
+    pkgconf:
+      externals: []
+    coreutils:
+      externals: []
+    gawk:
+      externals: []
+    groff:
+      externals: []
+    diffutils:
+      externals: []
+    git:
+      externals: []
+    automake:
+      externals: []
+    binutils:
+      externals: []
+    curl:
+      externals: []
+    findutils:
+      externals: []
+    gmake:
+      externals: []
+    libtool:
+      externals: []
+    cmake:
+      externals: []
+    gettext:
+      externals: []
+    tar:
+      externals: []
+    openssl:
+      externals: []
+    m4:
+      externals: []
+    sed:
+      externals: []
+    perl:
+      externals: []
+    openssh:
+      externals: []
+    slurm:
+      externals:
+      - spec: slurm@{{ slurm_ver.stdout }}
+        prefix: /usr
+  modules:
+    default:
+      lmod:
+        core_compilers:
+        - gcc@={{ gcc_ver.stdout }}
+  compilers:
+  - compiler:
+      spec: gcc@={{ gcc_ver.stdout }}
+      paths:
+        cc: /usr/bin/gcc
+        cxx: /usr/bin/g++
+        f77: /usr/bin/gfortran
+        fc: /usr/bin/gfortran
+      flags: {}
+      operating_system: debian12
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []

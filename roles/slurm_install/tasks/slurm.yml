@@ -1,10 +1,26 @@
 ---
+- name: add slurm group
+  group:
+    name: slurm
+    gid: 151
+    state: present
 - name: add slurm user
-  shell: |
-    useradd slurm
-    usermod -u 151 slurm
-    groupmod -g 151 slurm
-    chsh -s /usr/sbin/nologin slurm  
+  user:
+    name: slurm
+    comment: "SLURM workload manager"
+    uid: 151
+    group: slurm
+    shell: /usr/sbin/nologin
+    createhome: no
+    state: present
+
+- name: chown for /etc/slurm
+  file:
+    path: /etc/slurm
+    owner: slurm
+    group: slurm
+    state: directory
+
 - name: prepare for DEB
   apt:
     pkg:

@@ -1,0 +1,43 @@
+---
+- name: mount NFS
+  mount:
+    src: "{{ nfs_server }}:{{ nfs_prefix }}"
+    path: "/mnt/hpc"
+    fstype: nfs
+    state: ephemeral
+
+- name: create slurm when shared_config
+  file:
+    path: /mnt/hpc/slurm
+    state: directory
+  when: shared_config
+- name: create munge when shared_munge
+  file:
+    path: /mnt/hpc/munge
+    state: directory
+  when: shared_munge
+
+- name: set var for control nodes list length
+  set_fact:
+    ctrl_len: "{{groups['hpc_control']|length}}"
+- name: create StateSaveLocation
+  file:
+    path: /mnt/hpc/share/slurm_state
+    state: directory
+  when: "ctrl_len|int > 1"
+
+- name: create home when shared_home
+  file:
+    path: /mnt/hpc/home
+    state: directory
+  when: shared_home
+
+- name: create spack
+  file:
+    path: /mnt/hpc/opt/spack
+    state: directory
+
+- name: unmount NFS
+  mount:
+    path: "/mnt/hpc"
+    state: unmounted

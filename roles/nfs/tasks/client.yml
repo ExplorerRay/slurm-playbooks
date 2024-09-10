@@ -1,30 +1,50 @@
 ---
-- name: Mount NFS direcoty on all compute nodes
 - name: Install NFS client package
   apt:
     name: nfs-common
     state: latest
 
-- name: Mount home directory
-  command: mount {{ nfs_server }}:/home /home
+- name: Mount home directory and set in fstab
+  mount:
+    src: "{{ nfs_server }}:{{ nfs_prefix }}/home"
+    path: /home
+    fstype: nfs
+    state: mounted
+  when: shared_home
 
-- name: Mount spack directory
-  shell: mount {{ nfs_server }}:/opt/spack /opt/spack
+- name: Mount /opt/spack directory and set in fstab
+  mount:
+    src: "{{ nfs_server }}:{{ nfs_prefix }}/opt/spack"
+    path: /opt/spack
+    fstype: nfs
+    state: mounted
 
-- name: set /opt/spack in fstab for compute node
-  lineinfile:
-    path: /etc/fstab
-    line: "{{ nfs_server }}:/opt/spack /opt/spack nfs defaults 0 0"
-    create: yes
+- name: set var for control nodes list length
+  set_fact:
+    ctrl_len: "{{groups['hpc_control']|length}}"
+- name: Mount StateSaveLocation directory and set in fstab
+  mount:
+    src: "{{ nfs_server }}:{{ nfs_prefix }}/share/slurm_state"
+    path: /share/slurm_state
+    fstype: nfs
+    state: mounted
+  when: >
+    'ctrl_len|int > 1 and
+    "hpc_control" in group_names and 
+    "hpc_storage" not in group_names'
 
-- name: set /home in fstab for compute node
-  lineinfile:
-    path: /etc/fstab
-    line: "{{ nfs_server }}:/home /home nfs defaults 0 0"
-    create: yes
+- name: mount slurm when shared_config
+  mount:
+    src: "{{ nfs_server }}:{{ nfs_prefix }}/slurm"
+    path: /etc/slurm
+    fstype: nfs
+    state: mounted
+  when: shared_config
 
-- name: set env for spack (create file with content)
-  copy:
-    dest: /etc/profile.d/spack.sh
-    mode: '0644'
-    content: 'source /opt/spack/share/spack/setup-env.sh'
+- name: mount munge when shared_munge
+  mount:
+    src: "{{ nfs_server }}:{{ nfs_prefix }}/munge"
+    path: /etc/munge
+    fstype: nfs
+    state: mounted
+  when: shared_munge

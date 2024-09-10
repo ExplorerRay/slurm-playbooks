@@ -1,9 +1,18 @@
 ---
-- name: write slurm.conf using jinja2 template
+- name: write slurm.conf using jinja2 template for all nodes
   template:
     src: slurm.conf.j2
     dest: /etc/slurm/slurm.conf
     owner: slurm
     group: slurm
     mode: '0644'
-  
+  when: 'not shared_config'
+
+- name: 1st ctrl node write slurm.conf using jinja2 template to NFS
+  template:
+    src: slurm.conf.j2
+    dest: /etc/slurm/slurm.conf
+    owner: slurm
+    group: slurm
+    mode: '0644'
+  when: 'shared_config and inventory_hostname == groups["hpc_control"][0]'

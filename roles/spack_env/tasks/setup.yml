@@ -1,0 +1,39 @@
+---
+- name: get slurm slurm version
+  shell: "sinfo --version | awk '{print $2}'"
+  register: slurm_ver
+
+- name: get system gcc version
+  shell: "gcc --version | awk 'NR==1{print $4}'"
+  register: gcc_ver
+
+- name: check version
+  pause:
+    prompt: "Slurm version is {{ slurm_ver.stdout }} and gcc version is {{ gcc_ver.stdout }}. Do you want to continue?"
+
+- name: copy spack environment file
+  template:
+    src: "{{ item }}"
+    dest: /tmp/{{ item.split('.')[0].split('/')[-1] }}.yml
+    mode: 0644
+  with_fileglob:
+    - "templates/*.j2"
+
+- name: spack external find
+  shell: "source /opt/spack/share/spack/setup-env.sh; spack external find"
+  args:
+    executable: /usr/bin/bash
+
+- name: spack env create
+  shell: "source /opt/spack/share/spack/setup-env.sh; spack env create {{ item.split('.')[0].split('/')[-1] }} /tmp/{{ item.split('.')[0].split('/')[-1] }}.yml"
+  with_fileglob:
+    - "templates/*.j2"
+  args:
+    executable: /usr/bin/bash
+
+- name: spack env concretize & install
+  shell: "source /opt/spack/share/spack/setup-env.sh; spack -e {{ item.split('.')[0].split('/')[-1] }} install"
+  with_fileglob:
+    - "templates/*.j2"
+  args:
+    executable: /usr/bin/bash

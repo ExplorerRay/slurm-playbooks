@@ -11,7 +11,32 @@
     state: directory
     owner: slurm
     group: slurm
+
+- name: set StateSaveLocation correct permission
+  file:
+    path: /share/slurm_state
+    state: directory
+    owner: slurm
+    group: slurm
+    mode: '0700'
+  when: "groups['hpc_control'][1] is defined"
+
 - name: restart slurmctld (for control)
   service:
     name: slurmctld
+    enabled: true
     state: restarted
+
+- name: Install pexpect
+  apt:
+    name: python3-pexpect
+    state: latest
+# there will be prompt for y/N
+- name: make slurmctld able to reach slurmdbd
+  expect:
+    command: sacctmgr add cluster {{ slurm_cluster_name }}
+    responses:
+      \(N/y\).+ : "y"
+    echo: yes
+    timeout: 10
+  when: 'inventory_hostname == groups["hpc_control"][0]'

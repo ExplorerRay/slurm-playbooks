@@ -14,4 +14,5 @@
 - name: start slurmd (for compute)
   service:
     name: slurmd
+    enabled: true
     state: restarted

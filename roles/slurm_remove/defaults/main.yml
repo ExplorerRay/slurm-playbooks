@@ -1,20 +1,8 @@
 ---
-no_packages:
-db_packages:
-- slurm-smd-slurmdbd
+slurm_packages:
 - slurm-smd
 - slurm-smd-build-deps
-ctrl_packages:
+- slurm-smd-slurmdbd
+- slurm-smd-slurmd
 - slurm-smd-slurmctld
 - slurm-smd-client
-- slurm-smd
-- slurm-smd-build-deps
-compute_packages:
-- slurm-smd-slurmd
-- slurm-smd-client
-- slurm-smd
-- slurm-smd-build-deps
-login_packages:
-- slurm-smd-client
-- slurm-smd
-- slurm-smd-build-deps

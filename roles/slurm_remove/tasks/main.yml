@@ -1,19 +1,11 @@
 ---
-- name: remove slurm for nodes
+- name: make all slurm packages absent
+# if the package is not installed, ansible will answer okay
   apt:
     name: "{{ item }}"
     state: absent
     autoremove: yes
-  with_items: 
-    "{% if vars['group_names'][0] == 'hpc-control' %}
-      {{ ctrl_packages }}
-    {% elif vars['group_names'][0] == 'hpc-db' %}
-      {{ db_packages }}
-    {% elif vars['group_names'][0] == 'hpc-compute' %}
-      {{ compute_packages }}
-    {% elif vars['group_names'][0] == 'hpc-login' and vars['group_names']['hpc-control'][0] != vars['group_names']['hpc-login'][0] %}
-      {{ login_packages }}
-    {% else %}
-      {{ no_packages }}
-    {% endif %}"
+  with_items:
+    "{{ slurm_packages }}"
+  when: "'slurm_nodes' in group_names"
  

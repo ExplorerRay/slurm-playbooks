@@ -1,9 +1,24 @@
 ---
 - name: Setup HPC Cluster
+  gather_facts: false
+  become: true
   hosts: "{{ var_host }}"
   roles:
-    - role: munge
-    - role: spack
+    - role: debian_init
+      tags: debian_init
     - role: nfs
+      tags: nfs
+    - role: munge
+      when: '"slurm_nodes" in group_names'
+      tags: munge
+    - role: spack_install
+      tags: spack_install
+    - role: cuda
+      when: '"hpc_compute" in group_names'
+      tags: cuda
     - role: slurm_install
+      tags: slurm_install
     - role: slurm_config
+      tags: slurm_config
+    - role: spack_env
+      tags: spack_env

@@ -1,0 +1,7 @@
+ansible_port: 22
+ansible_connection: ssh
+ansible_python_interpreter: /usr/bin/python3
+slurm_cluster_name: 'cc_slurm_cluster'
+shared_config: false
+shared_munge: false
+shared_home: true

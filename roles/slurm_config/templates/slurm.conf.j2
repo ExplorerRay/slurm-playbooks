@@ -1,5 +1,13 @@
 ClusterName={{ slurm_cluster_name }}
-SlurmctldHost={{ groups['hpc-control'] | join(',') }}
+{% for ctrl_node in groups['hpc_control'] %}
+SlurmctldHost={{ ctrl_node }}
+{% endfor %}
+
+{% if groups['hpc_control'][1] is defined %}
+StateSaveLocation=/share/slurm_state
+{% else %}
+StateSaveLocation=/var/spool/slurmctld
+{% endif %}
 #
 #MailProg=/bin/mail
 MpiDefault=pmix
@@ -12,8 +20,6 @@ SlurmdPidFile=/var/run/slurmd.pid
 SlurmdPort=6818
 SlurmdSpoolDir=/var/spool/slurmd
 SlurmUser=slurm
-#SlurmdUser=root
-StateSaveLocation=/var/spool/slurmctld
 #SwitchType=
 TaskPlugin=task/affinity,task/cgroup
 #
@@ -28,14 +34,15 @@ TaskPlugin=task/affinity,task/cgroup
 # SCHEDULING
 SchedulerType=sched/backfill
 SelectType=select/cons_tres
+SelectTypeParameters=CR_Core
 #
 #
 # LOGGING AND ACCOUNTING
-AccountingStorageHost={{ groups['hpc-slurmdbd'][0] }}
+AccountingStorageHost={{ groups['hpc_slurmdbd'][0] }}
 AccountingStoragePass=/var/run/munge/munge.socket.2
-{{ % if groups['hpc-slurmdbd'][1] is defined % }}
-AccountingStorageBackupHost={{ groups['hpc-slurmdbd'][1] }}
-{{ % endif % }}
+{% if groups['hpc_slurmdbd'][1] is defined %}
+AccountingStorageBackupHost={{ groups['hpc_slurmdbd'][1] }}
+{% endif %}
 AccountingStorageType=accounting_storage/slurmdbd
 AccountingStorageUser=slurm
 AccountingStoreFlags=job_script,job_env
@@ -49,6 +56,8 @@ SlurmdLogFile=/var/log/slurmd.log
 #
 #
 # COMPUTE NODES
-# need to check hardware of compute nodes in the future
-NodeName={{ groups['hpc-compute'] | join(',') }} CPUs=12 RealMemory=12288 Sockets=1 CoresPerSocket=6 ThreadsPerCore=2 State=UNKNOWN
-PartitionName=debug Nodes=ALL Default=YES MaxTime=INFINITE State=UP
+{% for node in groups['hpc_compute'] %}
+NodeName={{ node }} CPUs={{ hostvars[node]['ansible_processor_vcpus'] }} RealMemory={{ hostvars[node]['ansible_memory_mb']['real']['total'] }} Sockets={{ hostvars[node]['ansible_processor_count'] }} CoresPerSocket={{ hostvars[node]['ansible_processor_cores'] }} ThreadsPerCore={{ hostvars[node]['ansible_processor_threads_per_core'] }} State=UNKNOWN
+{% endfor %}
+
+PartitionName=cc_cluster Nodes=ALL Default=YES MaxTime=INFINITE State=UP

@@ -1,0 +1,12 @@
+---
+- name: prepare for spack
+  include_tasks: prepare.yml
+  when: "'hpc_login' in group_names"
+
+- name: first login node install spack to shared directory
+  ansible.builtin.include_tasks: install.yml
+  when: inventory_hostname == groups['hpc_login'][0]
+
+- name: set spack PATH for login nodes when ssh
+  ansible.builtin.include_tasks: set_path.yml
+  when: "'hpc_login' in group_names"

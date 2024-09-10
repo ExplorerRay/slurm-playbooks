@@ -1,14 +1,14 @@
 AuthInfo=/var/run/munge/munge.socket.2
 AuthType=auth/munge
-DbdHost={{ groups['hpc-slurmdbd'][0] }} # where slurmDBD executes e.g. localhost
-{{ % if groups['hpc-slurmdbd'][1] is defined % }}
-DbdBackupHost={{ groups['hpc-slurmdbd'][1] }}
-{{ % endif % }}
+DbdHost={{ groups['hpc_slurmdbd'][0] }} # where slurmDBD executes e.g. localhost
+{% if groups['hpc_slurmdbd'][1] is defined %}
+DbdBackupHost={{ groups['hpc_slurmdbd'][1] }}
+{% endif %}
 DebugLevel=info
 LogFile=/var/log/slurmdbd.log
 PidFile=/var/run/slurmdbd.pid
 SlurmUser=slurm
-StorageHost={{ groups['hpc-db'][0] }} # where MariaDB server executes
+StorageHost={{ groups['hpc_db'][0] }} # where MariaDB server executes
 DbdPort=7031
 StoragePass={{ slurm_db_pass }}
 StorageType=accounting_storage/mysql

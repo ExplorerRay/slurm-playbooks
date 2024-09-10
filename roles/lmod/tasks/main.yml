@@ -19,7 +19,7 @@
 
 - name: download Lmod
   get_url:
-    url: https://sourceforge.net/projects/lmod/files/Lmod-8.7.tar.bz2/download
+    url: https://sourceforge.net/projects/lmod/files/Lmod-{{ lmod_version }}.tar.bz2/download
     dest: /tmp/lmod.tar.bz2
     mode: '0644'
 - name: extract
@@ -34,10 +34,10 @@
 - name: configure location
   shell:
     cmd: ./configure --prefix=/opt/apps
-    chdir: /tmp/Lmod-8.7/
+    chdir: /tmp/Lmod-{{ lmod_version }}/
 - name: make install lmod
   make:
-    chdir: /tmp/Lmod-8.7/
+    chdir: /tmp/Lmod-{{ lmod_version }}/
     target: install
     # jobs: 12
 - name: create symlink for lmod env var

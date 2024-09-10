@@ -1,0 +1,23 @@
+---
+- name: get ansible facts for hostname
+  setup:
+    filter:
+      - 'inventory_hostname'
+
+- name: set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: get ansible facts for /etc/hosts
+  setup:
+    filter:
+      - 'ansible_default_ipv4'
+      - 'ansible_hostname'
+
+- name: replace /etc/hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644

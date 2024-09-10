@@ -1,7 +1,7 @@
 ---
 - name: check nvidia driver
   shell: nvidia-smi
-  ignore_errors: yes
+  ignore_errors: true
   register: nvidia_driver
 - name: abort if nvidia driver is installed
   fail:
@@ -10,6 +10,7 @@
 - name: check runfile
   stat:
     path: "/tmp/cuda_{{ cuda_version }}_{{ nv_driver_version }}_linux.run"
+  register: runfile
 - name: get runfile
   shell: "wget https://developer.download.nvidia.com/compute/cuda/{{ cuda_version }}/local_installers/cuda_{{ cuda_version }}_{{ nv_driver_version }}_linux.run -O /tmp/cuda_{{ cuda_version }}_{{ nv_driver_version }}_linux.run"
   when: not runfile.stat.exists

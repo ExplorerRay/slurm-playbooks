@@ -8,6 +8,15 @@
   service:
     name: sshd
     state: reloaded
+- name: prompt for password
+  pause:
+    prompt: "Enter password for hpc user"
+    echo: false
+  register: input
+- name: set password
+  set_fact:
+    password: "{{ input.user_input }}"
+  run_once: true
 - name: add hpc user with sudo
   user:
     name: hpc
@@ -15,5 +24,6 @@
     create_home: yes
     append: true
     groups: sudo
-    password: "{{ password }}"
+    password: "{{ password | password_hash('sha512') }}"
     update_password: on_create
+  when: "'hpc_login' in group_names"

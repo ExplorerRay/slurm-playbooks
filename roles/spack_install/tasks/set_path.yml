@@ -1,0 +1,6 @@
+---
+- name: set env var for spack
+  template:
+    src: spack.sh.j2
+    dest: /etc/profile.d/spack.sh
+    mode: '0644'

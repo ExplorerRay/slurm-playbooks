@@ -5,5 +5,5 @@
 - name: Install CUDA
   ansible.builtin.include_tasks: install.yml
 
-- name: Post Install
-  ansible.builtin.include_tasks: post_install.yml
+# - name: Post Install
+#   ansible.builtin.include_tasks: post_install.yml

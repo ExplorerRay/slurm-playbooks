@@ -1,15 +1,22 @@
 ---
+- name: get ansible fact for hostname
+  setup:
+    filter:
+      - 'ansible_hostname'
+
 - name: create munge key
-  become: yes
-  become_user: munge
-  shell: /usr/sbin/mungekey --verbose
+  shell: 
+    cmd: sudo -u munge /usr/sbin/mungekey --verbose
+    creates: /etc/munge/munge.key
   when: ansible_hostname == vars['munge_master']
+
 - name: fetch munge key to local
   fetch:
     src: /etc/munge/munge.key
     dest: /tmp/munge.key
     flat: yes
-  when: ansible_hostname == vars['munge_master']
+  when: "ansible_hostname == vars['munge_master'] and not shared_munge"
+
 - name: copy munge key to others
   copy:
     src: /tmp/munge.key
@@ -17,4 +24,10 @@
     owner: munge
     group: munge
     mode: '0600'
-  when: '"slurm_nodes" in group_names'
+  when: '"slurm_nodes" in group_names and not shared_munge'
+
+- name: enable and start munge service
+  service:
+    name: munge
+    enabled: true
+    state: started
