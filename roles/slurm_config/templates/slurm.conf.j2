@@ -36,6 +36,16 @@ SchedulerType=sched/backfill
 SelectType=select/cons_tres
 SelectTypeParameters=CR_Core
 #
+# JOB PRIORITY
+PriorityType=priority/multifactor
+# Default values
+PriorityDecayHalfLife=7-00:00:00
+PriorityCalcPeriod=00:05:00
+PriorityFavorSmall=No
+PriorityMaxAge=7-00:00:00
+PriorityUsageResetPeriod=NONE
+# refers to NYCU ITSC service
+PriorityWeightAssoc=1000
 #
 # LOGGING AND ACCOUNTING
 AccountingStorageHost={{ groups['hpc_slurmdbd'][0] }}
