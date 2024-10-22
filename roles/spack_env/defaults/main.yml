@@ -1,2 +1,2 @@
 ---
-cuda_version: "12.5"
+spack_env_cuda_version: "12.5"

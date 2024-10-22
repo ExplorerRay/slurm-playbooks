@@ -1,4 +1,4 @@
-- name: restart service
-  systemd:
+- name: Restart service
+  ansible.builtin.systemd:
     name: "{{ service }}"
     state: restarted

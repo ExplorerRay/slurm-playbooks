@@ -1,43 +1,48 @@
 ---
-- name: mount NFS
-  mount:
+- name: Mount NFS
+  ansible.posix.mount:
     src: "{{ nfs_server }}:{{ nfs_prefix }}"
     path: "/mnt/hpc"
     fstype: nfs
     state: ephemeral
 
-- name: create slurm when shared_config
-  file:
+- name: Create slurm when shared_config
+  ansible.builtin.file:
     path: /mnt/hpc/slurm
+    mode: '0755'
     state: directory
   when: shared_config
-- name: create munge when shared_munge
-  file:
+- name: Create munge when shared_munge
+  ansible.builtin.file:
     path: /mnt/hpc/munge
+    mode: '0700'
     state: directory
   when: shared_munge
 
-- name: set var for control nodes list length
-  set_fact:
-    ctrl_len: "{{groups['hpc_control']|length}}"
-- name: create StateSaveLocation
-  file:
+- name: Set var for control nodes list length
+  ansible.builtin.set_fact:
+    ctrl_len: "{{ groups['hpc_control'] | length }}"
+- name: Create StateSaveLocation
+  ansible.builtin.file:
     path: /mnt/hpc/share/slurm_state
+    mode: '0700'
     state: directory
   when: "ctrl_len|int > 1"
 
-- name: create home when shared_home
-  file:
+- name: Create home when shared_home
+  ansible.builtin.file:
     path: /mnt/hpc/home
+    mode: '0755'
     state: directory
   when: shared_home
 
-- name: create spack
-  file:
+- name: Create spack
+  ansible.builtin.file:
     path: /mnt/hpc/opt/spack
+    mode: '0755'
     state: directory
 
-- name: unmount NFS
-  mount:
+- name: Unmount NFS
+  ansible.posix.mount:
     path: "/mnt/hpc"
     state: unmounted

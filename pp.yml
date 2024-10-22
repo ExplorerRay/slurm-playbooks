@@ -2,30 +2,36 @@
 - name: Setup HPC Cluster for pp
   gather_facts: false
   become: true
-  hosts: "{{ var_host }}"
+  hosts: "{{ var_host | default('all') }}"
   tasks:
-    - name: install pp needed packages
-      apt:
-        pkg: 
+    - name: Install pp needed packages
+      ansible.builtin.apt:
+        pkg:
           - linux-perf
           - gdb
           - ffmpeg
-        state: latest
+        state: present
       when: "'hpc_compute' in group_names or 'hpc_login' in group_names"
 
-    - name: set sysctl for perf
-      sysctl:
+    - name: Set sysctl for perf
+      ansible.posix.sysctl:
         name: kernel.perf_event_paranoid
         value: 0
         state: present
         reload: true
       when: "'hpc_compute' in group_names or 'hpc_login' in group_names"
 
-    - name: install tiv
-      shell: |
-        git clone https://github.com/stefanhaustein/TerminalImageViewer.git /tmp/tiv
-        cd /tmp/tiv
-        make
-        sudo make install
+    - name: Get tiv
+      ansible.builtin.git:
+        repo: https://github.com/stefanhaustein/TerminalImageViewer.git
+        dest: /tmp/tiv
+        version: "v1.2.1"
+    - name: Build tiv
+      community.general.make:
+        chdir: /tmp/tiv
       when: "'hpc_login' in group_names"
-    
+    - name: Install tiv
+      community.general.make:
+        chdir: /tmp/tiv
+        target: install
+      when: "'hpc_login' in group_names"

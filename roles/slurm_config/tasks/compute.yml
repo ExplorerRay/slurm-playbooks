@@ -1,18 +1,20 @@
 ---
-- name: create necessary file for slurmd
-  file:
+- name: Create necessary file for slurmd
+  ansible.builtin.file:
     path: /var/log/slurmd.log
     state: touch
     owner: slurm
     group: slurm
-- name: create necessary directory for slurmd
-  file:
+    mode: '0644'
+- name: Create necessary directory for slurmd
+  ansible.builtin.file:
     path: /var/spool/slurmd
     state: directory
     owner: slurm
     group: slurm
-- name: start slurmd (for compute)
-  service:
+    mode: '0755'
+- name: Start slurmd (for compute)
+  ansible.builtin.service:
     name: slurmd
     enabled: true
     state: restarted

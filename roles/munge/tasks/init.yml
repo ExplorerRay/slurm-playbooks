@@ -1,34 +1,34 @@
 ---
-- name: add munge group
-  group:
+- name: Add munge group
+  ansible.builtin.group:
     name: munge
     gid: 150
     state: present
-- name: add munge user
-  user:
+- name: Add munge user
+  ansible.builtin.user:
     name: munge
     comment: "MUNGE Uid 'N' Gid Emporium"
     uid: 150
     group: munge
     shell: /usr/sbin/nologin
-    createhome: no
+    createhome: false
     state: present
 
-- name: chown for /etc/munge
-  file:
+- name: Chown for /etc/munge
+  ansible.builtin.file:
     path: /etc/munge
     owner: munge
     group: munge
     state: directory
-    mode: 0700
+    mode: '0700'
 
-# - name: apt update
-#   apt:
-#     state: latest
+# - name: Apt update
+#
+#     state: present
 #     name: "*"
-#     update_cache: yes
-- name: apt install munge & sudo
-  apt:
+#     update_cache: true
+- name: Apt install munge & sudo
+  ansible.builtin.apt:
     pkg:
       - libmunge-dev
       - libmunge2

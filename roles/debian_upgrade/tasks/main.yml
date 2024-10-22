@@ -1,26 +1,63 @@
 ---
-- name: get os
-  shell: cat /etc/os-release | grep VERSION_CODENAME | tr -d '"' | awk -F= '{printf $2}'
+- name: Get os
+  ansible.builtin.shell:
+    cmd: set -o pipefail && cat /etc/os-release | grep VERSION_CODENAME | tr -d '"' | awk -F= '{printf $2}'
+    executable: /bin/bash
   register: os
-- name: check os
-  fail: msg="Already upgraded"
+  changed_when: false
+- name: Check os
+  ansible.builtin.fail:
+    msg: "Already upgraded"
   when: os.stdout == "bookworm"
-- name: update repo source
-  raw: sed -i'.bak' 's/bullseye/bookworm/g' /etc/apt/sources.list
-- name: apt update -y
-  shell: apt update
-- name: upgrade
-  shell: apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" upgrade -yq --without-new-pkgs
+- name: Update repo source
+  ansible.builtin.raw: sed -i'.bak' 's/bullseye/bookworm/g' /etc/apt/sources.list
+  register: update_repo
+  changed_when: update_repo.rc == 0
+- name: Apt update -y
+  ansible.builtin.apt:
+    update_cache: true
+- name: Upgrade
+  ansible.builtin.command: apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" upgrade -yq --without-new-pkgs
   environment:
     DEBIAN_FRONTEND: noninteractive
-- name: upgrade to 12
-  shell: apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" full-upgrade -yq
+  register: upgrade
+  changed_when: upgrade.rc == 0
+- name: Upgrade to 12
+  ansible.builtin.command: apt -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" full-upgrade -yq
   environment:
     DEBIAN_FRONTEND: noninteractive
-  ignore_errors: yes
-- name: add polkitd
-  raw: adduser --system --group polkitd && adduser root polkitd
-- name: configure polkitd
-  raw: dpkg --configure polkitd
-- name: configure all
-  raw: dpkg --configure -a
+  register: full_upgrade
+  failed_when: false
+  changed_when: full_upgrade.rc == 0
+
+- name: Add polkitd group
+  ansible.builtin.group:
+    name: polkitd
+    system: true
+    state: present
+  when: full_upgrade.rc == 0
+- name: Add polkitd user
+  ansible.builtin.user:
+    name: polkitd
+    system: true
+    group: polkitd
+    shell: /usr/sbin/nologin
+    createhome: false
+    state: present
+  when: full_upgrade.rc == 0
+- name: Add root to group polkitd
+  ansible.builtin.user:
+    name: root
+    groups: polkitd
+    append: true
+  when: full_upgrade.rc == 0
+- name: Configure polkitd
+  ansible.builtin.raw: dpkg --configure polkitd
+  register: dpkg_polkitd
+  changed_when: dpkg_polkitd.rc == 0
+  when: full_upgrade.rc == 0
+- name: Configure all
+  ansible.builtin.raw: dpkg --configure -a
+  register: dpkg_all
+  changed_when: dpkg_all.rc == 0
+  when: full_upgrade.rc == 0

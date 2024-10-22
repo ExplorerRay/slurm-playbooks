@@ -1,4 +1,4 @@
 ---
-- name: setup spack environments for login node
+- name: Setup spack environments for login node
   ansible.builtin.include_tasks: setup.yml
   when: inventory_hostname == groups['hpc_login'][0]

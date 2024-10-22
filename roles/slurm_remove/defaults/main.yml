@@ -1,8 +1,8 @@
 ---
-slurm_packages:
-- slurm-smd
-- slurm-smd-build-deps
-- slurm-smd-slurmdbd
-- slurm-smd-slurmd
-- slurm-smd-slurmctld
-- slurm-smd-client
+slurm_remove_packages:
+  - slurm-smd
+  - slurm-smd-build-deps
+  - slurm-smd-slurmdbd
+  - slurm-smd-slurmd
+  - slurm-smd-slurmctld
+  - slurm-smd-client

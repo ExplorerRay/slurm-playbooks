@@ -1,21 +1,25 @@
 ---
-- name: prompt for slurm_db_pass
-  pause:
+- name: Prompt for slurm_db_pass
+  ansible.builtin.pause:
     prompt: "Enter the DB password for slurm"
     echo: false
   register: input
-- name: set var for all hosts
-  set_fact:
+- name: Set var for all hosts
+  ansible.builtin.set_fact:
     slurm_db_pass: "{{ input.user_input }}"
   run_once: true
 
-- name: set accounting for login nodes in mariadb-server
-  shell: |
+- name: Set accounting for login nodes in mariadb-server
+  ansible.builtin.shell: |
     mysql -e "CREATE USER 'slurm'@'{{ hostvars[item]['ansible_facts']['fqdn'] }}' identified by '{{ slurm_db_pass }}'"
     mysql -e "GRANT all ON slurm_acct_db.* TO 'slurm'@'{{ hostvars[item]['ansible_facts']['fqdn'] }}' identified by '{{ slurm_db_pass }}' with grant option"
   loop: "{{ groups['hpc_slurmdbd'] }}"
-- name: set accounting for localhost and create db
-  shell: |
+  run_once: true
+  changed_when: true
+- name: Set accounting for localhost and create db
+  ansible.builtin.shell: |
     mysql -e "CREATE USER 'slurm'@'localhost' identified by '{{ slurm_db_pass }}'"
     mysql -e "GRANT all ON slurm_acct_db.* TO 'slurm'@'localhost' identified by '{{ slurm_db_pass }}' with grant option"
     mysql -e "create database slurm_acct_db"
+  run_once: true
+  changed_when: true

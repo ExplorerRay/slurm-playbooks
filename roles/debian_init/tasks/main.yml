@@ -1,6 +1,6 @@
 ---
-- name: set /etc/hosts and hostname
-  include_tasks: set_hosts.yml
+- name: Set /etc/hosts and hostname
+  ansible.builtin.include_tasks: set_hosts.yml
 
 # - name: Set access control
 #   ansible.builtin.include_tasks: access.yml

@@ -1,11 +1,11 @@
 ---
-- name: apt-get update
-  apt:
+- name: Do apt-get update
+  ansible.builtin.apt:
     name: "*"
-    state: latest
-    update_cache: yes
-- name: prepare for spack
-  apt:
+    state: present
+    update_cache: true
+- name: Prepare for spack
+  ansible.builtin.apt:
     pkg:
       - build-essential
       - ca-certificates

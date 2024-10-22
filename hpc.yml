@@ -2,7 +2,7 @@
 - name: Setup HPC Cluster
   gather_facts: false
   become: true
-  hosts: "{{ var_host }}"
+  hosts: "{{ var_host | default('all') }}"
   roles:
     - role: debian_init
       tags: debian_init
