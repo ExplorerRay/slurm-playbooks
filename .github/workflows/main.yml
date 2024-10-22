@@ -6,21 +6,16 @@ on:
     branches: ["main", "stable", "release/v*"]
 
 jobs:
-  lint:
-    name: Ansible Lint
+  build:
+    name: Ansible Lint # Naming the build is important to use it as a status check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Install ansible-lint
-        run: |
-          sudo apt update
-          sudo apt install -y ansible-lint
-
-      - name: Check ansible lint version
-        run: ansible-lint --version
-
+      - uses: actions/checkout@v4
       - name: Run ansible-lint
-        run: |
-          ansible-lint *.yml roles/
+        uses: ansible/ansible-lint@main
+        # optional (see below):
+        with:
+          args: ""
+          setup_python: "true"
+          working_directory: ""
+          requirements_file: ".github/workflows/requirements.yml"
