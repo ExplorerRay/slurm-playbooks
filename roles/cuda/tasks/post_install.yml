@@ -1,6 +1,6 @@
 ---
-- name: setup env variable
-  blockinfile:
+- name: Setup env variable
+  ansible.builtin.blockinfile:
     state: present
     insertafter: EOF
     dest: /etc/profile.d/cuda.sh

@@ -1,27 +1,29 @@
 ---
-- name: create necessary file for slurmdbd
-  file: 
+- name: Create necessary file for slurmdbd
+  ansible.builtin.file:
     path: /var/run/slurmdbd.pid
     state: touch
     owner: slurm
     group: slurm
-- name: create log file for slurmdbd
-  file:
+    mode: '0644'
+- name: Create log file for slurmdbd
+  ansible.builtin.file:
     path: /var/log/slurmdbd.log
     state: touch
     owner: slurm
     group: slurm
+    mode: '0644'
 
-- name: write slurmdbd.conf using jinja2 template to NFS
-  template:
+- name: Write slurmdbd.conf using jinja2 template to NFS
+  ansible.builtin.template:
     src: slurmdbd.conf.j2
     dest: /etc/slurm/slurmdbd.conf
     owner: slurm
     group: slurm
     mode: '0600'
   when: 'shared_config and inventory_hostname == groups["hpc_slurmdbd"][0]'
-- name: write slurmdbd.conf using jinja2 template to all slurmdbd
-  template:
+- name: Write slurmdbd.conf using jinja2 template to all slurmdbd
+  ansible.builtin.template:
     src: slurmdbd.conf.j2
     dest: /etc/slurm/slurmdbd.conf
     owner: slurm
@@ -29,8 +31,8 @@
     mode: '0600'
   when: 'not shared_config'
 
-- name: start slurmdbd
-  service:
+- name: Start slurmdbd
+  ansible.builtin.service:
     name: slurmdbd
     enabled: true
     state: restarted

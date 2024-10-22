@@ -1,27 +1,27 @@
 ---
-- name: no root login
-  replace:
+- name: No root login
+  ansible.builtin.replace:
     path: /etc/ssh/sshd_config
     regexp: '^PermitRootLogin yes'
     replace: 'PermitRootLogin no'
-- name: reload sshd
-  service:
+- name: Reload sshd
+  ansible.builtin.service:
     name: sshd
     state: reloaded
-- name: prompt for password
-  pause:
+- name: Prompt for password
+  ansible.builtin.pause:
     prompt: "Enter password for hpc user"
     echo: false
   register: input
-- name: set password
-  set_fact:
+- name: Set password
+  ansible.builtin.set_fact:
     password: "{{ input.user_input }}"
   run_once: true
-- name: add hpc user with sudo
-  user:
+- name: Add hpc user with sudo
+  ansible.builtin.user:
     name: hpc
     shell: /bin/bash
-    create_home: yes
+    create_home: true
     append: true
     groups: sudo
     password: "{{ password | password_hash('sha512') }}"

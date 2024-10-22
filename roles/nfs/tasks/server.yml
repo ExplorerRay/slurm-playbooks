@@ -1,11 +1,11 @@
 ---
 - name: Install NFS kernel package
-  apt:
+  ansible.builtin.apt:
     name: nfs-kernel-server
-    state: latest
+    state: present
 
-- name: copy home directories for NFS
-  copy: 
+- name: Copy home directories for NFS
+  ansible.builtin.copy:
     src: /home/
     dest: "{{ nfs_prefix }}/home"
     remote_src: true
@@ -15,100 +15,110 @@
   ansible.builtin.lineinfile:
     path: /etc/exports
     line: "{{ nfs_prefix }}/home {{ nfs_subnet }}(rw,sync,no_root_squash,no_subtree_check)"
-    create: yes
+    create: true
+    mode: '0644'
   when: shared_home
 
-- name: create /opt/spack directories for NFS
-  file: 
+- name: Create /opt/spack directories for NFS
+  ansible.builtin.file:
     path: "{{ nfs_prefix }}/opt/spack"
+    mode: '0755'
     state: directory
 - name: Setting up NFS server for /opt/spack
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/exports
     line: "{{ nfs_prefix }}/opt/spack {{ nfs_subnet }}(rw,sync,no_root_squash,no_subtree_check)"
-    create: yes
+    create: true
+    mode: '0644'
 
-- name: set var for control nodes list length
-  set_fact:
-    ctrl_len: "{{groups['hpc_control']|length}}"
-- name: create StateSaveLocation directories for NFS
-  file: 
+- name: Set var for control nodes list length
+  ansible.builtin.set_fact:
+    ctrl_len: "{{ groups['hpc_control'] | length }}"
+- name: Create StateSaveLocation directories for NFS
+  ansible.builtin.file:
     path: "{{ nfs_prefix }}/share/slurm_state"
+    mode: '0700'
     state: directory
   when: "ctrl_len|int > 1"
 - name: Setting up NFS server for StateSaveLocation
   ansible.builtin.lineinfile:
     path: /etc/exports
     line: "{{ nfs_prefix }}/share/slurm_state {{ nfs_subnet }}(rw,sync,no_root_squash,no_subtree_check)"
-    create: yes
+    create: true
+    mode: '0644'
   when: "ctrl_len|int > 1"
 
-- name: create StateSaveLocation for both control node and storage
-  file:
+- name: Create StateSaveLocation for both control node and storage
+  ansible.builtin.file:
     path: /share
+    mode: '0755'
     state: directory
   when: >
     'ctrl_len|int > 1 and
-    "hpc_control" in group_names and 
+    "hpc_control" in group_names and
     "hpc_storage" in group_names'
 - name: Setting up StateSaveLocation for both control node and storage
-  file:
+  ansible.builtin.file:
     src: "{{ nfs_prefix }}/share/slurm_state"
     dest: /share/slurm_state
     state: link
   when: >
     'ctrl_len|int > 1 and
-    "hpc_control" in group_names and 
+    "hpc_control" in group_names and
     "hpc_storage" in group_names'
 
-- name: create slurm directory for NFS
-  file: 
+- name: Create slurm directory for NFS
+  ansible.builtin.file:
     path: "{{ nfs_prefix }}/slurm"
     owner: 151
     group: 151
-    mode: 0755
+    mode: '0755'
     state: directory
   when: shared_config
 - name: Setting up NFS server for slurm
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/exports
     line: "{{ nfs_prefix }}/slurm {{ nfs_subnet }}(rw,sync,no_root_squash,no_subtree_check)"
-    create: yes
+    create: true
+    mode: '0644'
   when: shared_config
 
-- name: create munge directory for NFS
-  file:
+- name: Create munge directory for NFS
+  ansible.builtin.file:
     path: "{{ nfs_prefix }}/munge"
     owner: 150
     group: 150
-    mode: 0700
+    mode: '0700'
     state: directory
   when: shared_munge
 - name: Setting up NFS server for munge
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/exports
     line: "{{ nfs_prefix }}/munge {{ nfs_subnet }}(rw,sync,no_root_squash,no_subtree_check)"
-    create: yes
+    create: true
+    mode: '0644'
   when: shared_munge
 
 - name: Setting up slurm for both control node and storage
-  file:
+  ansible.builtin.file:
     src: "{{ nfs_prefix }}/slurm"
     dest: /etc/slurm
     state: link
   when: >
     'shared_config and
-    "hpc_control" in group_names and 
+    "hpc_control" in group_names and
     "hpc_storage" in group_names'
 - name: Setting up munge for both control node and storage
-  file:
+  ansible.builtin.file:
     src: "{{ nfs_prefix }}/munge"
     dest: /etc/munge
     state: link
   when: >
     'shared_munge and
-    "hpc_control" in group_names and 
+    "hpc_control" in group_names and
     "hpc_storage" in group_names'
 
 - name: Reload NFS
-  command: exportfs -ra
+  ansible.builtin.command: exportfs -ra
+  register: reload_nfs
+  changed_when: reload_nfs.rc == 0

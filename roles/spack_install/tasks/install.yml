@@ -1,3 +1,8 @@
 ---
-- name: get spack
-  shell: "git clone -c feature.manyFiles=true https://github.com/spack/spack.git /opt/spack"
+- name: Get spack
+  ansible.builtin.git:
+    repo: https://github.com/spack/spack.git
+    dest: /opt/spack
+    depth: 2
+    version: "{{ spack_install_version }}"
+  run_once: true

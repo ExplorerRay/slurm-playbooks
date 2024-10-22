@@ -1,46 +1,48 @@
 ---
-- name: add slurm group
-  group:
+- name: Add slurm group
+  ansible.builtin.group:
     name: slurm
     gid: 151
     state: present
-- name: add slurm user
-  user:
+- name: Add slurm user
+  ansible.builtin.user:
     name: slurm
     comment: "SLURM workload manager"
     uid: 151
     group: slurm
     shell: /usr/sbin/nologin
-    createhome: no
+    createhome: false
     state: present
 
-- name: chown for /etc/slurm
-  file:
+- name: Chown for /etc/slurm
+  ansible.builtin.file:
     path: /etc/slurm
     owner: slurm
     group: slurm
+    mode: '0755'
     state: directory
 
-- name: prepare for DEB
-  apt:
+- name: Prepare for DEB
+  ansible.builtin.apt:
     pkg:
       - build-essential
       - fakeroot
       - devscripts
       - equivs
-- name: download slurm
-  get_url:
-    url: https://download.schedmd.com/slurm/slurm-{{ slurm_version }}.tar.bz2
+- name: Download slurm
+  ansible.builtin.get_url:
+    url: https://download.schedmd.com/slurm/slurm-{{ slurm_install_version }}.tar.bz2
     dest: /tmp/slurm.tar.bz2
     mode: '0644'
-- name: extract tar
-  unarchive:
+- name: Extract tar
+  ansible.builtin.unarchive:
     src: /tmp/slurm.tar.bz2
     dest: /tmp/
     remote_src: true
-- name: install slurm dependency & build slurm
-  shell:
+- name: Install slurm dependency & build slurm
+  ansible.builtin.shell:
     cmd: |
       mk-build-deps --install --tool='apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes' debian/control
       debuild -b -uc -us
-    chdir: /tmp/slurm-{{ slurm_version }}/
+    chdir: /tmp/slurm-{{ slurm_install_version }}/
+  changed_when: true

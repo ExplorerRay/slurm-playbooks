@@ -1,11 +1,10 @@
 ---
-- name: make all slurm packages absent
+- name: Make all slurm packages absent
 # if the package is not installed, ansible will answer okay
-  apt:
+  ansible.builtin.apt:
     name: "{{ item }}"
     state: absent
-    autoremove: yes
+    autoremove: true
   with_items:
-    "{{ slurm_packages }}"
+    "{{ slurm_remove_packages }}"
   when: "'slurm_nodes' in group_names"
- 

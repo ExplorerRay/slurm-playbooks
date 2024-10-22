@@ -1,6 +1,6 @@
 ---
-- name: write slurm.conf using jinja2 template for all nodes
-  template:
+- name: Write slurm.conf using jinja2 template for all nodes
+  ansible.builtin.template:
     src: slurm.conf.j2
     dest: /etc/slurm/slurm.conf
     owner: slurm
@@ -9,7 +9,7 @@
   when: 'not shared_config'
 
 - name: 1st ctrl node write slurm.conf using jinja2 template to NFS
-  template:
+  ansible.builtin.template:
     src: slurm.conf.j2
     dest: /etc/slurm/slurm.conf
     owner: slurm

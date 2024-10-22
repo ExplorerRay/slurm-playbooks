@@ -1,32 +1,32 @@
 ---
-- name: apt-get update
-  apt:
+- name: Apt-get update
+  ansible.builtin.apt:
     name: '*'
-    state: latest
-    update_cache: yes
-- name: install mariadb-server and mysql_config
-  apt:
-    pkg: 
+    state: present
+    update_cache: true
+- name: Install mariadb-server and mysql_config
+  ansible.builtin.apt:
+    pkg:
       - mariadb-server
       - default-libmysqlclient-dev
 
-- name: revise mariadb-server conf for bind addr
-  replace:
+- name: Revise mariadb-server conf for bind addr
+  ansible.builtin.replace:
     path: /etc/mysql/mariadb.conf.d/50-server.cnf
     regexp: 'bind-address.*'
     replace: 'bind-address = 0.0.0.0'
-- name: revise mariadb-server conf for buffer
-  replace:
+- name: Revise mariadb-server conf for buffer
+  ansible.builtin.replace:
     path: /etc/mysql/mariadb.conf.d/50-server.cnf
     regexp: '^#innodb_buffer_pool_size.*'
     replace: 'innodb_buffer_pool_size = 4G'
-- name: add mariadb-server conf for lock wait timeout
-  blockinfile:
+- name: Add mariadb-server conf for lock wait timeout
+  ansible.builtin.blockinfile:
     path: /etc/mysql/mariadb.conf.d/50-server.cnf
     insertafter: 'innodb_buffer_pool_size = 4G'
     block: 'innodb_lock_wait_timeout = 900'
 
-- name: restart mariadb-server
-  service:
+- name: Restart mariadb-server
+  ansible.builtin.service:
     name: mariadb
     state: restarted
