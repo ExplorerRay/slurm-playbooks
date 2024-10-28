@@ -1,5 +1,5 @@
 ---
-- name: \u$1o apt-get update
+- name: Do apt-get update
   ansible.builtin.apt:
     name: "*"
     state: present
