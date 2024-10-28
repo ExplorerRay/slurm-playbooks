@@ -2,7 +2,7 @@
 - name: Apt update
   ansible.builtin.include_tasks: common.yml
 
-- name: \u$1nstall NFS for server and setup for shared directories
+- name: Install NFS for server and setup for shared directories
   ansible.builtin.include_tasks: server.yml
   when: '"hpc_storage" in group_names and nfs_admin'
 
@@ -14,6 +14,6 @@
   ansible.builtin.pause:
     prompt: "Please check NFS server setup and press Enter to continue"
 
-- name: \u$1nstall NFS client and mount shared directories
+- name: Install NFS client and mount shared directories
   ansible.builtin.include_tasks: client.yml
   when: '"slurm_nodes" in group_names and "hpc_storage" not in group_names'
