@@ -1,0 +1,18 @@
+---
+- name: Run specific role with tag
+  gather_facts: false
+  become: true
+  hosts: "{{ var_host | default('UNDEFINED') }}"
+  roles:
+    - role: debian_init
+      tags: debian_init
+
+    - role: debian_upgrade
+      tags: debian_upgrade
+
+    - role: service_restart
+      service_restart_name: "<srv_name>"
+      tags: service_restart
+
+    - role: slurm_remove
+      tags: slurm_remove

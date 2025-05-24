@@ -1,6 +1,0 @@
----
-- name: Set env var for spack
-  ansible.builtin.template:
-    src: spack.sh.j2
-    dest: /etc/profile.d/spack.sh
-    mode: '0644'
