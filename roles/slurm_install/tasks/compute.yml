@@ -1,4 +1,9 @@
 ---
+- name: Install libpmix-dev for Slurm pmix support
+  ansible.builtin.apt:
+    name: libpmix-dev
+    update_cache: true
+
 - name: Install slurm.deb for compute nodes
   ansible.builtin.apt:
     deb: /tmp/{{ item }}
@@ -6,3 +11,12 @@
     - slurm-smd_{{ slurm_install_version }}-1_amd64.deb
     - slurm-smd-slurmd_{{ slurm_install_version }}-1_amd64.deb
     - slurm-smd-client_{{ slurm_install_version }}-1_amd64.deb
+  when: not slurm_in_apt
+
+- name: Install slurm.deb for control nodes with apt
+  ansible.builtin.apt:
+    pkg:
+      - slurm-smd
+      - slurm-smd-slurmd
+      - slurm-smd-client
+  when: slurm_in_apt

@@ -1,4 +1,8 @@
 ---
+- name: Install dependency for mysql module
+  ansible.builtin.apt:
+    name: python3-mysqldb
+
 - name: Prompt for slurm_db_pass
   ansible.builtin.pause:
     prompt: "Enter the DB password for slurm"
@@ -9,17 +13,25 @@
     slurm_db_pass: "{{ input.user_input }}"
   run_once: true
 
-- name: Set accounting for login nodes in mariadb-server
-  ansible.builtin.shell: |
-    mysql -e "CREATE USER 'slurm'@'{{ hostvars[item]['ansible_facts']['fqdn'] }}' identified by '{{ slurm_db_pass }}'"
-    mysql -e "GRANT all ON slurm_acct_db.* TO 'slurm'@'{{ hostvars[item]['ansible_facts']['fqdn'] }}' identified by '{{ slurm_db_pass }}' with grant option"
+- name: Set accounting for DBD nodes in mariadb-server
+  community.mysql.mysql_user:
+    name: slurm
+    password: "{{ slurm_db_pass }}"
+    host: "{{ hostvars[item]['ansible_facts']['fqdn'] }}"
+    priv: "slurm_acct_db.*:ALL,GRANT"
+    state: present
   loop: "{{ groups['hpc_slurmdbd'] }}"
-  run_once: true
-  changed_when: true
-- name: Set accounting for localhost and create db
-  ansible.builtin.shell: |
-    mysql -e "CREATE USER 'slurm'@'localhost' identified by '{{ slurm_db_pass }}'"
-    mysql -e "GRANT all ON slurm_acct_db.* TO 'slurm'@'localhost' identified by '{{ slurm_db_pass }}' with grant option"
-    mysql -e "create database slurm_acct_db"
-  run_once: true
-  changed_when: true
+
+- name: Set accounting for localhost when mariadb-server in DBD
+  community.mysql.mysql_user:
+    name: slurm
+    password: "{{ slurm_db_pass }}"
+    host: localhost
+    priv: "slurm_acct_db.*:ALL,GRANT"
+    state: present
+  when: "groups['hpc_db'][0] in groups['hpc_slurmdbd']"
+
+- name: Create slurm_acct_db database
+  community.mysql.mysql_db:
+    name: slurm_acct_db
+    state: present

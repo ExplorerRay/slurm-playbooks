@@ -1,0 +1,10 @@
+[mysqld]
+# Allow server to accept connections on all interfaces.
+bind-address = 0.0.0.0
+
+# for slurm recommended setting
+# https://slurm.schedmd.com/accounting.html#slurm-accounting-configuration-before-build
+innodb_buffer_pool_size = 4G
+innodb_log_file_size = 1G
+innodb_lock_wait_timeout = 900
+max_allowed_packet = 16M

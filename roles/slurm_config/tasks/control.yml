@@ -29,9 +29,19 @@
     enabled: true
     state: restarted
 
+- name: Check if cluster has been added
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail &&
+      sacctmgr -n show cluster format=cluster%{{ slurm_cluster_name | length }} | grep {{ slurm_cluster_name }}
+  register: check_cluster
+  ignore_errors: true
+  changed_when: false
+  when: 'inventory_hostname == groups["hpc_control"][0]'
+
 - name: Make slurmctld able to reach slurmdbd
   ansible.builtin.command:
     cmd: sacctmgr -i add cluster {{ slurm_cluster_name }}
   register: add_cluster
   changed_when: add_cluster.rc == 0
-  when: 'inventory_hostname == groups["hpc_control"][0]'
+  when: 'inventory_hostname == groups["hpc_control"][0] and check_cluster.rc != 0'

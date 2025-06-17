@@ -29,16 +29,20 @@
       - fakeroot
       - devscripts
       - equivs
+  when: not slurm_in_apt
+
 - name: Download slurm
   ansible.builtin.get_url:
     url: https://download.schedmd.com/slurm/slurm-{{ slurm_install_version }}.tar.bz2
     dest: /tmp/slurm.tar.bz2
     mode: '0644'
+  when: not slurm_in_apt
 - name: Extract tar
   ansible.builtin.unarchive:
     src: /tmp/slurm.tar.bz2
     dest: /tmp/
     remote_src: true
+  when: not slurm_in_apt
 - name: Install slurm dependency & build slurm
   ansible.builtin.shell:
     cmd: |
@@ -46,3 +50,4 @@
       debuild -b -uc -us
     chdir: /tmp/slurm-{{ slurm_install_version }}/
   changed_when: true
+  when: not slurm_in_apt
