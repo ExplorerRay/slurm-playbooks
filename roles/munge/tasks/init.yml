@@ -22,11 +22,6 @@
     state: directory
     mode: '0700'
 
-# - name: Apt update
-#
-#     state: present
-#     name: "*"
-#     update_cache: true
 - name: Apt install munge & sudo
   ansible.builtin.apt:
     pkg:
