@@ -1,4 +1,0 @@
----
-cuda_version: "12.6.1"
-cuda_major_version: "12.6"
-cuda_nv_driver_version: "560.35.03"
