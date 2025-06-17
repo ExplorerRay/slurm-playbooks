@@ -1,4 +1,29 @@
 ---
+- name: Copy gres.conf to slurm nodes
+  ansible.builtin.template:
+    src: gres.conf.j2
+    dest: /etc/slurm/gres.conf
+    owner: slurm
+    group: slurm
+    mode: '0644'
+  when: 'not shared_slurm_config'
+
+- name: 1st ctrl node copy gres.conf to NFS
+  ansible.builtin.template:
+    src: gres.conf.j2
+    dest: /etc/slurm/gres.conf
+    owner: slurm
+    group: slurm
+    mode: '0644'
+  when: 'shared_slurm_config and inventory_hostname == groups["hpc_control"][0]'
+
+- name: Get compute node info
+  ansible.builtin.shell:
+    cmd: "set -o pipefail && slurmd -C | head -n 1"
+  register: slurmd_info
+  when: '"hpc_compute" in group_names'
+  changed_when: false
+
 - name: Write slurm.conf using jinja2 template for all nodes
   ansible.builtin.template:
     src: slurm.conf.j2
@@ -6,7 +31,7 @@
     owner: slurm
     group: slurm
     mode: '0644'
-  when: 'not shared_config'
+  when: 'not shared_slurm_config'
 
 - name: 1st ctrl node write slurm.conf using jinja2 template to NFS
   ansible.builtin.template:
@@ -15,4 +40,4 @@
     owner: slurm
     group: slurm
     mode: '0644'
-  when: 'shared_config and inventory_hostname == groups["hpc_control"][0]'
+  when: 'shared_slurm_config and inventory_hostname == groups["hpc_control"][0]'

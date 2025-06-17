@@ -1,9 +1,4 @@
 ---
-- name: Set /etc/hosts and hostname
+# Use this when no DNS
+- name: Set /etc/hosts
   ansible.builtin.include_tasks: set_hosts.yml
-
-# - name: Set access control
-#   ansible.builtin.include_tasks: access.yml
-
-# - name: Set storage
-#   ansible.builtin.include_tasks: storage.yml

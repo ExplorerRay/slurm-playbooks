@@ -6,12 +6,12 @@
     fstype: nfs
     state: ephemeral
 
-- name: Create slurm when shared_config
+- name: Create slurm when shared_slurm_config
   ansible.builtin.file:
     path: /mnt/hpc/slurm
     mode: '0755'
     state: directory
-  when: shared_config
+  when: shared_slurm_config
 - name: Create munge when shared_munge
   ansible.builtin.file:
     path: /mnt/hpc/munge
@@ -29,18 +29,12 @@
     state: directory
   when: "ctrl_len|int > 1"
 
-- name: Create home when shared_home
+- name: Create home when nfs_shared_home
   ansible.builtin.file:
     path: /mnt/hpc/home
     mode: '0755'
     state: directory
-  when: shared_home
-
-- name: Create spack
-  ansible.builtin.file:
-    path: /mnt/hpc/opt/spack
-    mode: '0755'
-    state: directory
+  when: nfs_shared_home
 
 - name: Unmount NFS
   ansible.posix.mount:

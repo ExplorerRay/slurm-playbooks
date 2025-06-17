@@ -2,11 +2,8 @@
 - name: Get ansible facts
   ansible.builtin.setup:
     filter:
-      - 'ansible_memory_mb'
-      - 'ansible_processor_vcpus'
-      - 'ansible_processor_count'
-      - 'ansible_processor_cores'
-      - 'ansible_processor_threads_per_core'
+      - 'ansible_fqdn'
+      - 'ansible_hostname'
 
 - name: Config for all slurm nodes
   ansible.builtin.include_tasks: slurm.yml
@@ -14,7 +11,7 @@
 
 - name: Config slurm for db node
   ansible.builtin.include_tasks: db.yml
-  when: '"hpc_db" in group_names'
+  when: '"hpc_db" in group_names and inventory_hostname == groups["hpc_db"][0]'
 
 - name: Config slurm for slurmdbd nodes
   ansible.builtin.include_tasks: slurmdbd.yml

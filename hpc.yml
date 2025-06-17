@@ -2,16 +2,16 @@
 - name: Setup HPC Cluster
   gather_facts: false
   become: true
-  hosts: "{{ var_host | default('all') }}"
+  hosts: "{{ var_host | default('all,!hpc_storage,!hpc_galera') }}"
   roles:
+    - role: debian_init
+      tags: debian_init
     - role: nfs
+      when: 'groups["hpc_storage"][0] is defined'
       tags: nfs
     - role: munge
       when: '"slurm_nodes" in group_names'
       tags: munge
-    - role: cuda
-      when: '"hpc_compute" in group_names or "hpc_login" in group_names'
-      tags: cuda
     - role: slurm_install
       tags: slurm_install
     - role: slurm_config

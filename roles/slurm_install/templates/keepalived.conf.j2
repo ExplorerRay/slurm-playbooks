@@ -1,0 +1,35 @@
+! Configuration File for keepalived
+
+vrrp_instance VI_1 {
+    state MASTER
+    interface {{ slurm_install_db_ifname }}
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass slurm_galera
+    }
+    virtual_ipaddress {
+        {{ groups['hpc_galera'][0] }}
+    }
+}
+
+virtual_server {{ groups['hpc_galera'][0] }} 3306 {
+    delay_loop 5
+    lb_algo rr
+    lb_kind DR
+    persistence_timeout 50
+    protocol TCP
+
+    real_server {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} 3306 {
+        weight 1
+        notify_down "/usr/sbin/service keepalived stop"
+        TCP_CHECK {
+            connect_timeout 3
+            retry 1
+            delay_before_retry 1
+            connect_port 3306
+        }
+    }
+}

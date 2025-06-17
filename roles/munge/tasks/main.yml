@@ -1,6 +1,23 @@
 ---
 - name: Init Munge Requirements
   ansible.builtin.include_tasks: init.yml
+  when: '"slurm_nodes" in group_names'
 
 - name: Generate Munge Key
   ansible.builtin.include_tasks: key.yml
+
+- name: Copy munge key to others
+  ansible.builtin.copy:
+    src: /tmp/munge.key
+    dest: /etc/munge/munge.key
+    owner: munge
+    group: munge
+    mode: '0600'
+  when: '"slurm_nodes" in group_names and not shared_munge'
+
+- name: Start Munge Service
+  ansible.builtin.service:
+    name: munge
+    enabled: true
+    state: restarted
+  when: '"slurm_nodes" in group_names'

@@ -10,14 +10,7 @@
     path: /home
     fstype: nfs
     state: mounted
-  when: shared_home
-
-- name: Mount /opt/spack directory and set in fstab
-  ansible.posix.mount:
-    src: "{{ nfs_server }}:{{ nfs_prefix }}/opt/spack"
-    path: /opt/spack
-    fstype: nfs
-    state: mounted
+  when: nfs_shared_home
 
 - name: Set var for control nodes list length
   ansible.builtin.set_fact:
@@ -33,13 +26,13 @@
     "hpc_control" in group_names and
     "hpc_storage" not in group_names'
 
-- name: Mount slurm when shared_config
+- name: Mount slurm when shared_slurm_config
   ansible.posix.mount:
     src: "{{ nfs_server }}:{{ nfs_prefix }}/slurm"
     path: /etc/slurm
     fstype: nfs
     state: mounted
-  when: shared_config
+  when: shared_slurm_config
 
 - name: Mount munge when shared_munge
   ansible.posix.mount:
@@ -48,3 +41,7 @@
     fstype: nfs
     state: mounted
   when: shared_munge
+
+- name: Run systemctl daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true

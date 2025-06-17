@@ -1,2 +1,3 @@
 ---
-slurm_install_version: "24.05.2"
+slurm_install_version: "24.11.1"
+slurm_install_db_ifname: "ens192"

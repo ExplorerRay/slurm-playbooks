@@ -1,0 +1,83 @@
+---
+- name: Install mariadb-server, mysql_config and galera
+  ansible.builtin.apt:
+    pkg:
+      - mariadb-server
+      - default-libmysqlclient-dev
+      - galera-4
+      - mariadb-client
+
+- name: Copy Slurm recommended mariaDB conf with Galera
+  ansible.builtin.template:
+    src: 60-slurm-galera.cnf.j2
+    dest: /etc/mysql/mariadb.conf.d/60-slurm-galera.cnf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+
+- name: Check galera node status
+  ansible.builtin.command: >
+    mariadb --silent --skip-column-names --connect-timeout=10 -e 'SHOW STATUS LIKE "wsrep_local_state";'
+  failed_when: false
+  changed_when: false
+  register: _node_status
+
+- name: Set fact for Galera status
+  ansible.builtin.set_fact:
+    galera_need_restart: true
+  when: >-
+    _node_status.rc != 0
+    or _node_status.stdout == ""
+    or _node_status.stdout.split()[-1] not in ["2", "4"]
+- name: Set false if undefined
+  ansible.builtin.set_fact:
+    galera_need_restart: false
+  when: galera_need_restart is not defined
+
+- name: Stop mariadb when not synced or in Galera
+  ansible.builtin.service:
+    name: mariadb
+    state: stopped
+    enabled: true
+  # State 2 means Donor, State 4 means Synced
+  when: galera_need_restart
+
+- name: Restart mariadb-server as Galera primary node
+  ansible.builtin.command:
+    cmd: "galera_new_cluster"
+  when: 'inventory_hostname == groups["hpc_db"][0] and galera_need_restart'
+  failed_when: start_galera.rc != 0
+  changed_when: start_galera.rc == 0
+  register: start_galera
+
+- name: Restart mariadb-server
+  ansible.builtin.service:
+    name: mariadb
+    state: restarted
+  when: 'inventory_hostname != groups["hpc_db"][0] and galera_need_restart'
+
+- name: Install Keepalived
+  ansible.builtin.apt:
+    pkg:
+      - keepalived
+
+- name: Get ansible facts for ipv4
+  ansible.builtin.setup:
+    filter:
+      - 'ansible_default_ipv4'
+
+- name: Copy Keepalived config
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+
+- name: Restart Keepalived with new config
+  ansible.builtin.service:
+    name: keepalived
+    state: restarted
+    enabled: true

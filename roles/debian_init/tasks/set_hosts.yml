@@ -1,18 +1,10 @@
 ---
-- name: Get ansible facts for hostname
-  ansible.builtin.setup:
-    filter:
-      - 'inventory_hostname'
-
-- name: Set hostname
-  ansible.builtin.hostname:
-    name: "{{ inventory_hostname }}"
-
 - name: Get ansible facts for /etc/hosts
   ansible.builtin.setup:
     filter:
       - 'ansible_default_ipv4'
       - 'ansible_hostname'
+      - 'ansible_fqdn'
 
 - name: Replace /etc/hosts file
   ansible.builtin.template:

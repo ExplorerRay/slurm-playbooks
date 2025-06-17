@@ -1,33 +1,13 @@
 ---
-- name: Get ansible fact for hostname
-  ansible.builtin.setup:
-    filter:
-      - 'ansible_hostname'
-
 - name: Create munge key
   ansible.builtin.command:
     cmd: sudo -u munge /usr/sbin/mungekey --verbose
     creates: /etc/munge/munge.key
-  when: ansible_hostname == vars['munge_master']
+  when: 'inventory_hostname == groups["hpc_control"][0]'
 
 - name: Fetch munge key to local
   ansible.builtin.fetch:
     src: /etc/munge/munge.key
     dest: /tmp/munge.key
     flat: true
-  when: "ansible_hostname == vars['munge_master'] and not shared_munge"
-
-- name: Copy munge key to others
-  ansible.builtin.copy:
-    src: /tmp/munge.key
-    dest: /etc/munge/munge.key
-    owner: munge
-    group: munge
-    mode: '0600'
-  when: '"slurm_nodes" in group_names and not shared_munge'
-
-- name: Enable and start munge service
-  ansible.builtin.service:
-    name: munge
-    enabled: true
-    state: started
+  when: 'not shared_munge and inventory_hostname == groups["hpc_control"][0]'

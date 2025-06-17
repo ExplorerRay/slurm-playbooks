@@ -3,9 +3,15 @@
   ansible.builtin.include_tasks: slurm.yml
   when: '"slurm_nodes" in group_names'
 
+- name: Set var for DB nodes list length
+  ansible.builtin.set_fact:
+    db_len: "{{ groups['hpc_db'] | length }}"
 - name: Install mariadb for db nodes
   ansible.builtin.include_tasks: db.yml
-  when: '"hpc_db" in group_names'
+  when: '"hpc_db" in group_names and db_len|int < 3'
+- name: Install mariadb for db nodes with galera
+  ansible.builtin.include_tasks: db_galera.yml
+  when: '"hpc_db" in group_names and db_len|int >= 3 and groups["hpc_galera"][0] is defined'
 
 - name: Install slurm for slurmdbd nodes
   ansible.builtin.include_tasks: slurmdbd.yml

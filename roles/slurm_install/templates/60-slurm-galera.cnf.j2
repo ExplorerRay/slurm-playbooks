@@ -1,0 +1,24 @@
+[galera]
+# Mandatory settings
+wsrep_on                 = ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_cluster_name       = "MariaDB Galera Cluster for Slurm"
+wsrep_cluster_address    = gcomm://{{ groups['hpc_db'] | join(',') }}
+binlog_format            = row
+default_storage_engine   = InnoDB
+innodb_autoinc_lock_mode = 2
+
+# Allow server to accept connections on all interfaces.
+bind-address = 0.0.0.0
+
+# Optional settings
+#wsrep_slave_threads = 1
+#innodb_flush_log_at_trx_commit = 0
+
+[mysqld]
+# for slurm recommended setting
+# https://slurm.schedmd.com/accounting.html#slurm-accounting-configuration-before-build
+innodb_buffer_pool_size = 4G
+innodb_log_file_size = 1G
+innodb_lock_wait_timeout = 900
+max_allowed_packet = 16M

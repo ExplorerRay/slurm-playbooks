@@ -1,14 +1,18 @@
 AuthInfo=/var/run/munge/munge.socket.2
 AuthType=auth/munge
-DbdHost={{ groups['hpc_slurmdbd'][0] }} # where slurmDBD executes e.g. localhost
+DbdHost={{ hostvars[groups['hpc_slurmdbd'][0]]['ansible_facts']['hostname'] }} # where slurmDBD executes e.g. localhost
 {% if groups['hpc_slurmdbd'][1] is defined %}
-DbdBackupHost={{ groups['hpc_slurmdbd'][1] }}
+DbdBackupHost={{ hostvars[groups['hpc_slurmdbd'][1]]['ansible_facts']['hostname'] }}
 {% endif %}
 DebugLevel=info
 LogFile=/var/log/slurmdbd.log
 PidFile=/var/run/slurmdbd.pid
 SlurmUser=slurm
-StorageHost={{ groups['hpc_db'][0] }} # where MariaDB server executes
+{% if groups['hpc_galera'][0] is defined %}
+StorageHost={{ groups['hpc_galera'][0] }} # where Keepalived VIP for Galera
+{% else %}
+StorageHost={{ hostvars[groups['hpc_db'][0]]['ansible_facts']['hostname'] }} # where MariaDB server executes
+{% endif %}
 DbdPort=7031
 StoragePass={{ slurm_db_pass }}
 StorageType=accounting_storage/mysql

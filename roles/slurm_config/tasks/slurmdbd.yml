@@ -21,7 +21,7 @@
     owner: slurm
     group: slurm
     mode: '0600'
-  when: 'shared_config and inventory_hostname == groups["hpc_slurmdbd"][0]'
+  when: 'shared_slurm_config and inventory_hostname == groups["hpc_slurmdbd"][0]'
 - name: Write slurmdbd.conf using jinja2 template to all slurmdbd
   ansible.builtin.template:
     src: slurmdbd.conf.j2
@@ -29,7 +29,7 @@
     owner: slurm
     group: slurm
     mode: '0600'
-  when: 'not shared_config'
+  when: 'not shared_slurm_config'
 
 - name: Start slurmdbd
   ansible.builtin.service:
