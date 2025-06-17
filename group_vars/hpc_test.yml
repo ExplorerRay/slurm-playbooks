@@ -1,8 +1,12 @@
+---
+ansible_become_method: su
+ansible_become_user: root
 ansible_port: 22
 ansible_connection: ssh
 ansible_python_interpreter: /usr/bin/python3
 
 slurm_cluster_name: 'test_slurm_cluster'
-shared_slurm_config: false
-shared_munge: false
-shared_home: true
+slurm_in_apt: false
+shared_munge: true
+shared_slurm_config: true
+nfs_prefix: "/hpc_shared" # NFS export prefix
