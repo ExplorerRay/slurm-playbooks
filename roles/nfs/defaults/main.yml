@@ -1,5 +1,6 @@
 ---
 nfs_admin: true
 nfs_server: "{{ groups['hpc_storage'][0] }}"
-nfs_prefix: "/net" # NFS server prefix
 nfs_subnet: "0.0.0.0/0"
+
+nfs_shared_home: true

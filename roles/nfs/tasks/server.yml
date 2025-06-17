@@ -10,26 +10,14 @@
     dest: "{{ nfs_prefix }}/home"
     remote_src: true
     mode: preserve
-  when: shared_home
+  when: nfs_shared_home
 - name: Setting up NFS server for /home
   ansible.builtin.lineinfile:
     path: /etc/exports
     line: "{{ nfs_prefix }}/home {{ nfs_subnet }}(rw,sync,no_root_squash,no_subtree_check)"
     create: true
     mode: '0644'
-  when: shared_home
-
-- name: Create /opt/spack directories for NFS
-  ansible.builtin.file:
-    path: "{{ nfs_prefix }}/opt/spack"
-    mode: '0755'
-    state: directory
-- name: Setting up NFS server for /opt/spack
-  ansible.builtin.lineinfile:
-    path: /etc/exports
-    line: "{{ nfs_prefix }}/opt/spack {{ nfs_subnet }}(rw,sync,no_root_squash,no_subtree_check)"
-    create: true
-    mode: '0644'
+  when: nfs_shared_home
 
 - name: Set var for control nodes list length
   ansible.builtin.set_fact:
@@ -74,14 +62,14 @@
     group: 151
     mode: '0755'
     state: directory
-  when: shared_config
+  when: shared_slurm_config
 - name: Setting up NFS server for slurm
   ansible.builtin.lineinfile:
     path: /etc/exports
     line: "{{ nfs_prefix }}/slurm {{ nfs_subnet }}(rw,sync,no_root_squash,no_subtree_check)"
     create: true
     mode: '0644'
-  when: shared_config
+  when: shared_slurm_config
 
 - name: Create munge directory for NFS
   ansible.builtin.file:
@@ -105,7 +93,7 @@
     dest: /etc/slurm
     state: link
   when: >
-    'shared_config and
+    'shared_slurm_config and
     "hpc_control" in group_names and
     "hpc_storage" in group_names'
 - name: Setting up munge for both control node and storage

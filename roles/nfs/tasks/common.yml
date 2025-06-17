@@ -1,6 +1,4 @@
 ---
-- name: Update and upgrade apt packages
+- name: Update apt packages
   ansible.builtin.apt:
-    name: '*'
-    state: present
     update_cache: true
